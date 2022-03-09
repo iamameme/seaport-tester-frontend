@@ -20,8 +20,9 @@ code {
 }
 
 p {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 300;
+  font-family: 'Roboto';
 }
 
 .container {
@@ -56,6 +57,7 @@ p {
 h4 {
   color: hsl(0, 0%, 100%);
   font-weight: 600;
+  font-family: 'Roboto';
 }
 
 .content {
