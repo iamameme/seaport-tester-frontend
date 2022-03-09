@@ -22,7 +22,7 @@
             ]
         },
         {
-            "source": "/.*",
+            "source": "/(.*)",
             "headers": [
                 {
                     "key": "access-control-allow-origin",
