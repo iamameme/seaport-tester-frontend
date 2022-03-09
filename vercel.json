@@ -1,7 +1,7 @@
 {
     "headers": [
         {
-            "source": "(.*)",
+            "source": "/marketplace/(.*)",
             "headers": [
                 {
                     "key": "Access-Control-Allow-Credentials",
