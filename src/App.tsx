@@ -101,7 +101,6 @@ class App extends React.Component {
                 fontSize: 24,
                 color: 'black'
               }}>Known Origin - Ethereum</Typography>
-              <Typography style={{ color: 'rgb(123, 128, 154)' }} variant="body2">This shows Rarible NFTs with the ability to buy a Rarible NFT without leaving the site</Typography>
               <Typography style={{ color: 'rgb(123, 128, 154)' }} variant="body2">This shows Known Origin NFTs with links to Known Origin</Typography>
 
               <div style={{ display: 'flex', overflowX: 'scroll', }}>
