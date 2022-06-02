@@ -1,25 +1,42 @@
 {
   "private": true,
   "dependencies": {
+    "@alch/alchemy-web3": "^1.4.2",
+    "@bthn/seaport-js": "^0.0.1",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
+    "@material-ui/icons": "^4.11.3",
     "@mui/icons-material": "^5.5.0",
     "@mui/material": "^5.5.0",
+    "@reduxjs/toolkit": "^1.8.2",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/react": "^17.0.39",
+    "@types/react-virtualized": "^9.21.21",
+    "@web3-onboard/core": "^2.2.9",
+    "@web3-onboard/injected-wallets": "^2.0.7",
+    "@web3-onboard/react": "^2.1.7",
     "axios": "^0.26.0",
     "crypto-js": "^4.1.1",
+    "eslint": "^7.32.0 || ^8.2.0",
     "ethereumjs-abi": "^0.6.8",
+    "ethers": "^5.6.8",
     "fbemitter": "^3.0.0",
     "isomorphic-unfetch": "^3.1.0",
     "lit-element": "^3.2.0",
     "lit-html": "^2.2.0",
+    "moment": "^2.29.3",
+    "opensea-js": "^3.0.4",
+    "prettier": "^2.6.2",
     "query-string": "^7.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-redux": "^8.0.2",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.0",
+    "react-virtualized": "^9.22.3",
     "ts-lit-plugin": "^1.2.1",
     "typescript": "^4.6.2",
     "web-vitals": "^2.1.3",
@@ -29,16 +46,10 @@
     "wyvern-schemas": "^0.6.15"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "CI=false react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "start": "PORT=3006 react-app-rewired start",
+    "build": "CI=false react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
   },
   "browserslist": {
     "production": [
@@ -51,5 +62,24 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "process": "^0.11.10",
+    "react-app-rewired": "^2.2.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.0"
   }
 }

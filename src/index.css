@@ -11,147 +11,30 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Outfit";
-  color: hsl(215, 51%, 70%);
+
+.thediv {
+  height: 85%;
 }
 
-p {
-  font-size: 14px;
-  font-weight: 300;
-  font-family: 'Roboto';
+.card__body {
+  cursor: pointer;
+  background: linear-gradient(180deg,#fff,hsla(0,0%,100%,0)),#fff;
+  box-shadow: 0 4px 40px rgb(0 0 0 / 10%);
+  border-radius: 15px;
+  overflow: hidden;
 }
 
-.container {
-  background-color: hsl(216, 50%, 16%);
-  display: flex;
-  flex-direction: column;
-  gap: 3%;
-  padding: 20px;
-  width: 400px;
-  max-width: 400px;
-  min-width: 321px;
-  height: 600px;
-  border-radius: 3%;
-  margin: 30px;
-}
-
-.picture {
-  background-image: url("./images/image-equilibrium.jpg");
+.card__image {
+  background-color: #aaa;
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  overflow: hidden;
+  cursor: pointer;
+  background-position: 50%;
   background-size: cover;
-  background-position: center;
-  height: 50%;
-  border-radius: 3%;
 }
 
-.details {
-  display: flex;
-  flex-direction: column;
-  height: 50%;
-  /* background-color: red; */
-}
-
-h4 {
-  color: hsl(0, 0%, 100%);
-  font-weight: 600;
-  font-family: 'Roboto';
-}
-
-.content {
-  display: flex;
-  /* background-color: brown; */
-}
-
-.price {
-  display: flex;
-  align-items: center;
-  /* background-color: red; */
-  width: 50%;
-  height: 100%;
-  gap: 3%;
-}
-
-.icone__ethereum {
-  background-image: url("./images/icon-ethereum.svg");
-  background-size: cover;
-  background-position: center;
-  height: 15px;
-  width: 10px;
-  /* gap: 10%; */
-  /* margin-right: 3%; */
-}
-
-.price > p {
-  color: hsl(178, 100%, 50%);
-  font-weight: 400;
-}
-.time {
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  width: 50%;
-  height: 100%;
-  gap: 3%;
-  /* background-color: green; */
-}
-
-.icone__time {
-  background-image: url("./images/icon-clock.svg");
-  background-size: cover;
-  background-position: center;
-  height: 20px;
-  width: 20px;
-}
-
-.creater {
-  height: 15%;
-  display: flex;
-  align-items: center;
-  gap: 5%;
-  border-top: 1px solid hsl(215, 32%, 27%);
-  /* background-color: green; */
-}
-
-.avatar {
-  background-image: url("./images/image-avatar.png");
-  background-size: cover;
-  background-position: center;
-  height: 30px;
-  width: 30px;
-  border: 1px solid hsl(0, 0%, 100%);
-  border-radius: 50%;
-}
-
-span {
-  color: hsl(0, 0%, 100%);
-}
-
-@media only screen and (max-width: 320px) {
-  .container {
-    height: 400px;
-  }
-  h2 {
-    font-size: 20px;
-  }
-  p {
-    font-size: 14px;
-  }
-
-  .icone__time {
-    height: 15px;
-    width: 15px;
-  }
-
-  .icone__ethereum {
-    height: 10px;
-    width: 5px;
-  }
-
-  .avatar {
-    height: 20px;
-    width: 20px;
-  }
+.shadowRoot .balance {
+  width: 120%;
 }
