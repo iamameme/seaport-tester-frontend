@@ -1,6 +1,8 @@
+import { DATABASE_URL } from "./constants";
+
 export const getAllOrders = async () => {
     try {
-        const orders = await fetch('http://localhost:3000/api/orders/getAll');
+        const orders = await fetch(`${DATABASE_URL}/api/orders/getAll`);
         console.log('Successfully got orders');
         return orders.json()
     } catch (e) {
@@ -11,7 +13,7 @@ export const getAllOrders = async () => {
 
 export const getAllOrdersByType = async (type: string) => {
     try {
-        const orders = await fetch(`http://localhost:3000/api/orders/getAll/${type}`);
+        const orders = await fetch(`${DATABASE_URL}/api/orders/getAll/${type}`);
         console.log('Successfully got orders');
         return orders.json()
     } catch (e) {
@@ -22,7 +24,7 @@ export const getAllOrdersByType = async (type: string) => {
 
 export const getOrdersByAddress = async (offerer: string) => {
     try {
-        const orders = await fetch('http://localhost:3000/api/orders/getByOfferer/' + offerer, {
+        const orders = await fetch(`${DATABASE_URL}/api/orders/getByOfferer/` + offerer, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -40,7 +42,7 @@ export const getOrdersByAddress = async (offerer: string) => {
 
 export const deleteAllOrders = async (offerer: string) => {
     try {
-        fetch('http://localhost:3000/api/orders/deleteAll', {
+        fetch(`${DATABASE_URL}/api/orders/deleteAll`, {
             method: 'DELETE',
             body: JSON.stringify({ offerer }),
             headers: {
@@ -58,7 +60,7 @@ export const deleteAllOrders = async (offerer: string) => {
 
 export const deleteOrders = async (ids: number[]) => {
     try {
-        fetch('http://localhost:3000/api/orders/', {
+        fetch(`${DATABASE_URL}/api/orders/`, {
             method: 'DELETE',
             body: JSON.stringify({ ids }),
             headers: {
@@ -80,7 +82,7 @@ export const postOffer = async (data: any, type?: string) => {
         body: JSON.stringify({ data: data, type: type ? type : 'offer' })
     };
     try {
-        await fetch('http://localhost:3000/api/orders/', requestOptions);
+        await fetch(`${DATABASE_URL}/api/orders/`, requestOptions);
         console.log('Successfully posted order');
     } catch (e) {
         console.warn('An error occurred saving the order');
@@ -95,7 +97,7 @@ export const postOrder = async (data: any) => {
         body: JSON.stringify({ data: data, type: 'order' })
     };
     try {
-        await fetch('http://localhost:3000/api/orders/', requestOptions);
+        await fetch(`${DATABASE_URL}/api/orders/`, requestOptions);
         console.log('Successfully posted order');
     } catch (e) {
         console.warn('An error occurred saving the order');
