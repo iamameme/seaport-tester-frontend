@@ -2,17 +2,18 @@ import React, { useState, useEffect, useCallback } from "react";
 import { createAlchemyWeb3, Nft, NftId } from "@alch/alchemy-web3";
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from "../../store";
-import { Autocomplete, Button, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, Input, TextField, Typography } from "@mui/material";
+import { Autocomplete, Button, Checkbox, List, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, IconButton, Input, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField, Typography } from "@mui/material";
 import { Seaport } from "@bthn/seaport-js";
 import { ethers } from 'ethers';
 import moment from 'moment';
 import { WalletState } from "@web3-onboard/core";
 import { postOffer, postOrder } from '../../utils/databaseApi';
 import InfiniteScroll from "react-infinite-scroll-component";
-import {AutoSizer, List} from 'react-virtualized';
+import {AutoSizer } from 'react-virtualized';
 import { without, xorWith, union, debounce } from 'lodash';
 import ConfigurableModal from "../../components/ConfigurableModal/ConfigurableModal";
 import { getCollections, getNftsByCollectionContract } from "../../utils/nftApi";
+import { getMerkleRoot } from "../../utils/ethUtils";
 
 // Using HTTPS
 const web3 = createAlchemyWeb3(
@@ -49,13 +50,6 @@ const createBasicOrderTest = async (address: string, nfts: NftIds[], amount: num
     const order = await seaport.createOrder({
         //conduitKey: '0', // Default value is 0
         endTime: moment().add(7, 'days').unix().toString(), // Recommended to send a end time, start time is current unix time
-        /*offer: [{
-            itemType: 2,
-            token: tokenId,
-            identifier: '1',
-            amount: '1',
-            endAmount: '1',
-        }],*/
         offer: [{
             itemType: 0,
             identifier: '0',
@@ -81,52 +75,12 @@ const createCollectionOfferTest = async (address: string, amount: number, collec
     const order = await seaport.createOrder({
         //conduitKey: '0', // Default value is 0
         endTime: moment().add(7, 'days').unix().toString(), // Recommended to send a end time, start time is current unix time
-        /*offer: [{
-            itemType: 2,
-            token: tokenId,
-            identifier: '1',
-            amount: '1',
-            endAmount: '1',
-        }],*/
         offer: [{
-            itemType: 0,
+            itemType: 1,
             identifier: '0',
-            token: "0x0000000000000000000000000000000000000000",
-            amount: (amount * 10**18).toString(),
-            endAmount: (amount * 10**18).toString(),
-            //recipient: address
-        }],
-        consideration: [{
-            itemType: 2,
-            token: collection.address,
-            identifier: '0',
-            amount: noBuying,
-            endAmount: noBuying,
-            recipient: address
-        }],
-        allowPartialFills: true,
-    }, address);
-    console.log(order);
-    const executeActions = await order.executeAllActions();
-    await postOffer({actions: executeActions, collection }, 'advancedoffer');
-    //console.log(apiResp);
-    console.log(executeActions);
-
-    //const fullfilled = await seaport.fulfillOrder(order);
-};
-
-const createTraitOfferTest = async (address: string, amount: number, collection: CollectionData, noBuying: string) => {
-    //const provider = new ethers.providers.JsonRpcProvider((window as any).ethereum);
-    const seaport = new Seaport( new ethers.providers.Web3Provider((window as any).ethereum) as any, {});
-    const order = await seaport.createOrder({
-        //conduitKey: '0', // Default value is 0
-        endTime: moment().add(7, 'days').unix().toString(), // Recommended to send a end time, start time is current unix time
-        offer: [{
-            itemType: 0,
-            identifier: '0',
-            token: "0x0000000000000000000000000000000000000000",
-            amount: (amount * 10**18).toString(),
-            endAmount: (amount * 10**18).toString(),
+            token: "0xc778417e063141139fce010982780140aa0cd5ab",
+            amount: (amount * 10**18 * Number(noBuying)).toString(),
+            endAmount: (amount * 10**18 * Number(noBuying)).toString(),
             //recipient: address
         }],
         consideration: [{
@@ -142,10 +96,38 @@ const createTraitOfferTest = async (address: string, amount: number, collection:
     console.log(order);
     const executeActions = await order.executeAllActions();
     await postOffer({actions: executeActions, collection }, 'advancedoffer');
-    //console.log(apiResp);
     console.log(executeActions);
+};
 
-    //const fullfilled = await seaport.fulfillOrder(order);
+const createTraitOfferTest = async (address: string, amount: number, collection: CollectionData, noBuying: string, tokenIds: string[]) => {
+    const seaport = new Seaport( new ethers.providers.Web3Provider((window as any).ethereum) as any, {});
+    // ['1','2','3']
+    const root = '0x' + getMerkleRoot(tokenIds);
+    const order = await seaport.createOrder({
+        //conduitKey: '0', // Default value is 0
+        endTime: moment().add(7, 'days').unix().toString(), // Recommended to send a end time, start time is current unix time
+        offer: [{
+            itemType: 1,
+            identifier: '0',
+            token: "0xc778417e063141139fce010982780140aa0cd5ab",
+            amount: (amount * 10**18 * Number(noBuying)).toString(),
+            endAmount: (amount * 10**18 * Number(noBuying)).toString(),
+            //recipient: address
+        }],
+        consideration: [{
+            itemType: 4,
+            token: collection.address,
+            identifier: root,
+            amount: noBuying,
+            endAmount: noBuying,
+            recipient: address
+        }],
+        allowPartialFills: true,
+    }, address);
+    console.log(order);
+    const executeActions = await order.executeAllActions();
+    await postOffer({actions: executeActions, collection }, 'advancedoffer');
+    console.log(executeActions);
 };
 
 type NftIds = {
@@ -161,10 +143,27 @@ export type CollectionData = {
     "chainId": string,
 }
 
-type TraitTemp = {
+type TempData = {
     value: string;
-    trait_type: string;
+    selected?: boolean;
 }
+
+type ValueTemp = {
+    value: string[];
+    selectedValue?: string;
+}
+
+type TraitTemp = {
+    trait_type: TempData;
+    value: TempData[];
+}
+
+type SelectedTrait = {
+    trait_type: string;
+    value: string[];
+}
+
+
 /*0: {value: 'greenish', trait_type: 'color'}
 1: {value: 'tilted', trait_type: 'mood'}*/
 
@@ -192,24 +191,10 @@ const AdvancedCreateOffers = () => {
     const [selectedCollection, setSelectedCollection] = useState<CollectionData | undefined>(undefined);
 
     // Traits
-    const [traits, setTraits] = useState<boolean[]>([false, false]);
-    const [traitNft, setTraitNft] = useState<MetadataResp | undefined>(undefined);
-
-    useEffect(() => {
-        async function fetchData(address: string, tokenId: string) {
-            const resp = await web3.alchemy.getNftMetadata({contractAddress: address, tokenId })
-            if (resp) {
-                console.log(resp);
-                setTraitNft(resp as any);
-            }
-        }
-        if (selected.length > 0) {
-            const item = nfts.find(x => x.id2 == selected[0]);
-            if (item) {
-                fetchData(item.contract.address, item.id.tokenId);
-            }
-        }
-    }, [selected]);
+    const [traits, setTraits] = useState<TraitTemp[]>([]);
+    const [traitNfts, setTraitNfts] = useState<NftIds[]>([]);
+    const [selectedTrait, setSelectedTrait] = useState<string | undefined>(undefined);
+    const [activeTraits, setActiveTraits] = useState<SelectedTrait[]>([]);
 
     const getOptionsDelayed = useCallback(
         debounce((text, callback) => {
@@ -235,6 +220,23 @@ const AdvancedCreateOffers = () => {
     const [scrollData, setScrollData] = useState<NftIds[]>([]);
 
     useEffect(() => {
+        async function fetchData2(address: string, allNfts: any[]) {
+            //const resp = await web3.alchemy.getNftMetadata({contractAddress: address, tokenId })
+            const promises = allNfts.map(x => web3.alchemy.getNftMetadata({contractAddress: address, tokenId: x.id.tokenId }))
+            const data = await Promise.all(promises);
+            if (data) {
+                const allNfts2: NftIds[] = data.map((x: any,i: number) => ({ ...x, id2: i})) as any;
+                setTraitNfts(allNfts2);
+                let allTypes: string[] = [];
+                const allTraits = data.reduce((arr: any[], nft) => {
+                    allTypes = union(allTypes, nft.metadata!.attributes!.map(x => x.trait_type));
+                    return union(arr, nft.metadata?.attributes);
+                }, []);
+                const finalTraits: TraitTemp[] = allTypes.map(x => ({ trait_type: { value: x, selected: false}, value: union(allTraits.filter(y => y.trait_type == x).map(x => x.value) as string[]).map(x => ({ value: x, selected: false}))}))
+                //const allTraits.
+                setTraits(finalTraits);
+            }
+        }
         async function fetchData(address: string) {
             const resp = await getNftsByCollectionContract(address);
             if (resp) {
@@ -242,6 +244,10 @@ const AdvancedCreateOffers = () => {
                 const allNfts: NftIds[] = resp.map((x: any,i: number) => ({ ...x, id2: i})) as any;
                 setNfts(allNfts);
                 setScrollData(allNfts);
+                
+                    if (selectedCollection && allNfts) {
+                        fetchData2(allNfts[0].contract.address, allNfts);
+                    }
             }
         }
         if (selectedCollection) {
@@ -266,15 +272,7 @@ const AdvancedCreateOffers = () => {
           setHasMoreValue(false);
         }
       };
-    const makeOrder = async () => {
-        const selectedNfts = nfts.filter(x => selected.indexOf(x.id2) > -1);
-        if (wallets && wallets[0].accounts[0] && selectedNfts) {
-            // create basic order with multiple
-            await createBasicOrderTest(wallets[0].accounts[0].address, selectedNfts, Number(ethValue), wallets[0]);
-            setOpen(true);
-            setSelected([]);
-        }
-    };
+
     const makeCollectionOrder = async () => {
         if (wallets && wallets[0].accounts[0] && selectedCollection) {
             // create basic order with multiple
@@ -286,6 +284,84 @@ const AdvancedCreateOffers = () => {
     const onCloseModal = () => {
         setOpen(false);
     }
+    const makeTraitOffer = async () => {
+        const buyNfts = traitNfts.filter(x => x.metadata!.attributes!.filter(x => activeTraits.find(x => x.trait_type) && activeTraits.find(x => x.trait_type)!.value.indexOf(x.value) > -1).length == activeTraits.length);
+        const buyNftsIds = buyNfts.map(x => x.id.tokenId);
+        if (wallets && selectedCollection) {
+            await createTraitOfferTest(wallets[0].accounts[0].address, Number(ethValue), selectedCollection, noBuying, buyNftsIds);
+            setOpen(true);
+            setSelected([]);
+        }
+    };
+
+    const makeTraitsList = () => {
+        const setKeySelected = (key: string) => {
+            const newTraits = traits.map(x => ({ ...x, trait_type: { ...x.trait_type, selected: key === x.trait_type.value ? true : false}  }))
+            setTraits(newTraits);
+        };
+        const makeActiveTraits = (value: string) => {
+            const newTraits = activeTraits.slice();
+            const foundIndex = activeTraits.findIndex(x => x.trait_type === selectedTrait);
+            if (foundIndex > -1) {
+                newTraits[foundIndex].value = union(newTraits[foundIndex].value, [value]);
+                setActiveTraits(newTraits)
+            } else {
+                newTraits.push({ trait_type: selectedTrait!, value: [value]});
+            }
+            return newTraits;
+        };
+
+
+        //console.log(traitNfts.filter(x => x.metadata!.attributes!.filter(x => activeTraits.find(x => x.trait_type) && activeTraits.find(x => x.trait_type)!.value.indexOf(x.value) > -1).length == activeTraits.length));
+        return (
+            <div style={{display: 'flex'}}>
+               <div style={{ flexGrow: 1}}> 
+                   <span><b>Trait Types</b></span>
+                <List sx={{  maxWidth: 360, bgcolor: 'background.paper' }}>
+                        {traits.map((value: TraitTemp) => {
+                            const labelId = `checkbox-list-label-${value}`;
+
+                            return (
+                            <ListItem
+                                key={value.trait_type.value}
+                                disablePadding
+                            >
+                                <ListItemButton role={undefined} onClick={() => setSelectedTrait(value.trait_type.value)} dense>
+                                <ListItemText id={labelId} primary={`${value.trait_type.value}`} />
+                                </ListItemButton>
+                            </ListItem>
+                            );
+                        })}
+                    </List>
+               </div>
+                <div  style={{ flexGrow: 1}}>
+                    <span><b>Trait Values</b></span>
+                    <List sx={{ width: '40%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                            {selectedTrait && 
+                                traits.find(x => x.trait_type.value === selectedTrait)!.value.map((value) => {
+                                    const labelId = `checkbox-list-label-${value}`;
+
+                                    return (
+                                    <ListItem
+                                        key={value.value}
+                                        disablePadding
+                                    >
+                                        <ListItemButton role={undefined} onClick={() => setActiveTraits(makeActiveTraits(value.value))} dense>
+                                        <ListItemText id={labelId} primary={`${value.value}`} />
+                                        </ListItemButton>
+                                    </ListItem>
+                                    );
+                            })}
+                        </List>
+                </div>
+            </div>
+        )
+    }
+
+    const removeTrait = (trait: string ) => {
+        setActiveTraits(activeTraits.filter(x => trait !== x.trait_type));
+    };
+
     return (
         <div style={{ width: '98vw', height: '90vh', display: 'flex', padding: 20}}>
             <ConfigurableModal message={"You offer has been created! Your partial one."} title={"Success"} open={open} handleClose={() => onCloseModal()} />
@@ -354,10 +430,10 @@ const AdvancedCreateOffers = () => {
                     </div>
                 </div>
                 <div style={{ height: '20%', marginTop: 30, boxShadow: '0 0.1px 0.3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 20%)', background: '#fff'}}>
-                    <div style={{ borderBottom: '1px solid grey', marginBottom: 10}}>
-                        <span>Parameters</span>
-                    </div>
-                    <TextField label="Price (ETH) Nice and Low" variant="outlined" defaultValue={'0.01'} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setEthValue(event.target.value)}  />
+                        <Typography variant="h5" gutterBottom component="div" sx={{ p: 2, pb: 0 }}  style={{ borderBottom: '1px solid #ebebed', fontWeight: 'bold'}}>
+                            Set Price for Each NFT
+                        </Typography>
+                    <TextField label="Price (ETH) for Each" variant="outlined" defaultValue={'0.01'} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setEthValue(event.target.value)}  />
                 </div>
             </div>
             <div style={{ marginLeft: 100, width: '45%', height: '100%' }}>
@@ -384,77 +460,27 @@ const AdvancedCreateOffers = () => {
                         </Typography>
                     </div>
                     <div style={{ height: '90%', marginTop: 20}}>
-                        <Button onClick={() => { setSelected([])}}>Clear the Broken Selected Items aka Go Back</Button>
-                        <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
-                            <FormLabel component="legend">Pick the Traits to Buy on Offer</FormLabel>
-                            <FormGroup>
-                                {traitNft && traitNft.metadata.attributes.map((x,i) => {
-                                    const makeNewTraits = (index: number) => {
-                                        const newTraits = traits.slice(0);
-                                        newTraits[index] = !newTraits[index];
-                                        return newTraits;
-                                    };
-                                    return (
-                                        <div>
-                                            <FormControlLabel
-                                                control={
-                                                <Checkbox checked={traits[i]} onChange={() => setTraits(makeNewTraits(i))} name="gilad" />
-                                                }
-                                                label={`${x.trait_type}: ${x.value}`}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </FormGroup>
-                        </FormControl>
+                        <Button variant="outlined" onClick={() => { setSelected([])}}>Go Back</Button>
+                        {makeTraitsList()}
+                        <Typography variant="body1" gutterBottom component="div" sx={{ p: 2, pb: 0 }}>
+                            Selected Traits
+                        </Typography>
+                        {activeTraits.map(x => (
+                            <div style={{display: 'flex'}}>
+                                <Typography variant="body2" gutterBottom component="div" sx={{ p: 2, pb: 0 }}>
+                                    {x.trait_type}: [{x.value.join(', ')}]
+                                </Typography>
+                                <Checkbox onClick={() => removeTrait(x.trait_type)} />
+                            </div>
+                        ))}
+                        {activeTraits.length === 0 && (<span>None</span>)}
+                        <hr/>
+                        <TextField label="# of NFTs Buying" defaultValue={'3'} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setNoBuying(event.target.value)}  />
+                        <Button  variant="outlined" onClick={() => makeTraitOffer()}>Make Trait Offer</Button>
                         
-                        {/*<AutoSizer>
-                        {({height, width}) => (
-                            <InfiniteScroll
-                                dataLength={nfts.length}
-                                next={handleOnRowsScrollEnd}
-                                hasMore={hasMoreValue}
-                                scrollThreshold={1}
-                                height={height}
-                                loader={<div/>}
-                                // Let's get rid of second scroll bar
-                                style={{ overflow: "unset", width }}
-                                scrollableTarget="thediv"
-                            >
-                                <Grid style={{ height: '100%', paddingLeft: '10%'}} container spacing={2}>    
-                                    {nfts && selected && nfts.filter(x => selected.indexOf(x.id2) > -1).map(nft => {
-                                        if (!nft.metadata!.image!) {
-                                            return;
-                                        }
-                                        return (
-                                            <Grid item xs={12} sm={6} md={5}>
-                                                <div className="card__body">
-                                                    <div className="card__image" style={{ backgroundImage: `url(${nft.metadata!.image})`}}>
-                                                    </div>
-                                                    <div className="card__info">
-                                                        <p>{nft.title}</p>
-                                                        <Button onClick={() =>  setSelected(without(selected, nft.id2) as any)}>
-                                                            Remove from Offer
-                                                        </Button>
-                                                    </div>
-                                                </div>
-
-                                            </Grid>
-                                        );
-                                    })}
-                                </Grid>
-                            </InfiniteScroll>
-                        )}
-                        </AutoSizer>*/}
                     </div>
                 </div>
                 )}
-                <div style={{ marginTop: 30, height: '20%', boxShadow: '0 0.1px 0.3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 20%)', background: '#fff'}}>
-                    <div style={{ borderBottom: '1px solid grey'}}>
-                        <span>Submit that s...stuff</span>
-                    </div>
-                    <Button onClick={async () => makeOrder()}>SubmIT IT</Button>
-                </div>
             </div>
         </div>
     )

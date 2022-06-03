@@ -21,7 +21,7 @@ const Home = () => {
                 2) Theres a bunch of links if you click the button at the top left, play around with some
             </Typography>
             <Typography variant="body1" gutterBottom component="div" sx={{ p: 2, pb: 0 }}>
-                Note: If you dont have any NFTs on Rinkeby, stick to the offer screens
+                {'Note: If you want a collection to test, try searching "ummmm", youll see my great NFT collection titled "ummmmmmm what?"'}
             </Typography>
         </div>
     )

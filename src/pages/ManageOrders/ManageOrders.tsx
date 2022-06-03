@@ -21,6 +21,7 @@ export type OrderData = {
     nfts: Nft[],
     actions: OrderWithNonce;
     collection?: CollectionData;
+    criteriaResolvers?: any;
 };
 
 export type OrdersResponse = {
@@ -90,12 +91,37 @@ const Create = () => {
                 <div style={{ height: '70%', boxShadow: '0 0.1px 0.3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 20%)', background: '#fff'}}>
                     <div style={{ borderBottom: '1px solid grey'}}>
                         <Typography variant="h5" gutterBottom component="div" sx={{ p: 2, pb: 0 }}>
-                            My Orders
+                            All Orders
                         </Typography>
                     </div>
                         {orders && orders.map(order => {
                             const isSelected = selected.indexOf(order.id) > -1;
                             const styles = isSelected ? { background: 'grey', border: '1px solid grey'} : {};
+                            if (order.data.actions.parameters.offer[0].itemType === 0 || order.data.actions.parameters.offer[0].itemType === 1) {
+                                return (
+                                    <div className="card__body" style={{display: 'flex', margin: 20, cursor: 'pointer', ...styles}} onClick={() => makeSelected(order.id)}>
+                                        <div className="card__body" style={{ margin: 10, width: '100%'}}>
+                                            <span>Offer</span>
+                                            <div className="card__image" style={{ backgroundImage: `url(https://www.drupal.org/files/styles/grid-3-2x/public/project-images/ETHEREUM-LOGO_PORTRAIT_Black_small.png?itok=E8Qrv5WR)`}} />
+                                            <div className="card__info">
+                                                <p>Price: {(((Number(order.data.actions.parameters.offer[0].startAmount) / 10**18)) / 3).toFixed(2)} ETH per NFT</p>
+                                            </div>
+                                        </div>
+                                        <div className="card__body" style={{ margin: 10, width: '100%'}}>
+                                            <span>Want</span>
+                                            <div>
+                                                <div className="card__body" style={{ width: '50%'}}>
+                                                    <div className="card__image" style={{ backgroundImage: `url()`}} />
+                                                    <div className="card__info">
+                                                        <span>NFTs From Collection: </span>
+                                                        <p>{order.data.collection && order.data.collection.name}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            }
                             return (
                                 <div className="card__body" style={{display: 'flex', margin: 20, cursor: 'pointer', ...styles}} onClick={() => makeSelected(order.id)}>
                                     <div className="card__body" style={{ margin: 10, width: '100%'}}>
@@ -120,7 +146,7 @@ const Create = () => {
                                         <span>Want</span>
                                         <div className="card__image" style={{ backgroundImage: `url(https://www.drupal.org/files/styles/grid-3-2x/public/project-images/ETHEREUM-LOGO_PORTRAIT_Black_small.png?itok=E8Qrv5WR)`}} />
                                         <div className="card__info">
-                                            <p>Price: {(Number(order.data.actions.parameters.consideration[0].startAmount) / 10**18).toFixed(2) } ETH</p>
+                                            <p>Price: {(Number(order.data.actions.parameters.consideration[0] && order.data.actions.parameters.consideration[0].startAmount) / 10**18).toFixed(2) } ETH</p>
                                         </div>
                                     </div>
                                 </div>
@@ -129,8 +155,9 @@ const Create = () => {
                 </div>
                 <div style={{ height: '20%', marginTop: 30, boxShadow: '0 0.1px 0.3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 20%)', background: '#fff'}}>
                     <div style={{ borderBottom: '1px solid grey', marginBottom: 10}}>
-                        <span>Nothing Here Yet</span>
+                        <span>Explanation</span>
                     </div>
+                    <span>{"This page is mainly for debugging, since the proper triggers to delete orders aren't all there yet"}</span>
                 </div>
             </div>
             <div style={{ marginLeft: 100, width: '45%', height: '100%', background: '#fff' }}>

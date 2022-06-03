@@ -88,11 +88,6 @@ const FulfillOrder = () => {
                         );
                     })}
             </div>
-            <div style={{ height: '20%', marginTop: 30, boxShadow: '0 0.1px 0.3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 20%)', background: '#fff'}}>
-                <div style={{ borderBottom: '1px solid grey', marginBottom: 10}}>
-                    <span>Nothing Here Yet</span>
-                </div>
-            </div>
         </div>
         <div style={{ marginLeft: 100, width: '45%', height: '100%', background: '#fff' }}>
             {selected && selected && (
