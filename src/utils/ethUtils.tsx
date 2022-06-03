@@ -14,7 +14,7 @@ export const getMerkleRoot = (ids: string[]) => {
     sort: true,
   });
   const root = tree.getRoot().toString('hex');
-  return root;
+  return { root, leaves };
 }
 
 

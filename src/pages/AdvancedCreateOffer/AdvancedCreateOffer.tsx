@@ -53,7 +53,8 @@ const createCollectionOfferTest = async (address: string, amount: number, collec
 const createTraitOfferTest = async (address: string, amount: number, collection: CollectionData, noBuying: string, tokenIds: string[]) => {
     const seaport = new Seaport( new ethers.providers.Web3Provider((window as any).ethereum) as any, {});
     // ['1','2','3']
-    const root = '0x' + getMerkleRoot(tokenIds);
+    const { root, leaves } = getMerkleRoot(tokenIds);
+    const root0 = '0x' + root;
     const test = tokenIds.map(x => '0x' + BigNumber.from(x).toHexString().slice(2).padStart(64, "0"));
     const order = await seaport.createOrder({
         //conduitKey: '0', // Default value is 0
@@ -66,21 +67,21 @@ const createTraitOfferTest = async (address: string, amount: number, collection:
             endAmount: (amount * 10**18 * Number(noBuying)).toString(),
             //recipient: address
         }],
-        // Can lie and make it look like it works if i get rid of amount, end amount, allowPartialFills, and set to test[1]
+        // CHEATER works if i get rid of amount, end amount, allowPartialFills, and set identifiers to length 1 
         // item is the in real life 
         consideration: [{
-            itemType: 2,
+            itemType: 2, // 2,
             token: collection.address,
-            identifiers: [test[1]], // test 
-            //amount: noBuying,
-            //endAmount: noBuying,
+            identifiers: test, // test 
+            amount: noBuying,
+            endAmount: noBuying,
             recipient: address
         }],
-        //allowPartialFills: true,
+        allowPartialFills: true,
     }, address);
     console.log(order);
     const executeActions = await order.executeAllActions();
-    await postOffer({actions: executeActions, collection, tokenIds }, 'trait');
+    await postOffer({actions: executeActions, collection, tokenIds, leaves }, 'trait');
     console.log(executeActions);
 };
 

@@ -54,9 +54,10 @@ const FulfillCollectionOffer = () => {
         const order = orders.find(x => x.id === selected);
         const nftsSubmit = nfts.filter(x => nftSelected.indexOf(x.id2) > -1);
         if (wallets && wallets[0].accounts[0] && order) {
+            const tokens = (order.data as any).tokenIds.map((x: string) => '0x' + BigNumber.from(x).toHexString().slice(2).padStart(64, "0"));
             const criteria = nftsSubmit.map(x => ({
                 identifier: x.id.tokenId,
-                validIdentifiers: []
+                validIdentifiers: tokens
             }));
             const seaport = new Seaport( new ethers.providers.Web3Provider((window as any).ethereum) as any, {});
             const actions = await seaport.fulfillOrder({ order: order.data.actions, unitsToFill: nftsSubmit.length, considerationCriteria: criteria });
@@ -97,17 +98,18 @@ const FulfillCollectionOffer = () => {
                                     <span>Offer</span>
                                     <div className="card__image" style={{ backgroundImage: `url(https://www.drupal.org/files/styles/grid-3-2x/public/project-images/ETHEREUM-LOGO_PORTRAIT_Black_small.png?itok=E8Qrv5WR)`}} />
                                     <div className="card__info">
-                                        <p>Price: {(((Number(order.data.actions.parameters.offer[0].startAmount) / 10**18)) / 3).toFixed(2)} ETH per</p>
+                                        <p>Price: {(((Number(order.data.actions.parameters.offer[0].startAmount) / 10**18)) / 3).toFixed(2)} ETH per NFT</p>
                                     </div>
                                 </div>
                                 <div className="card__body" style={{ margin: 10, width: '100%'}}>
                                     <span>Want</span>
                                     <div>
-                                        <div className="card__body" style={{ width: '50%'}}>
+                                        <div className="card__body" style={{ width: '100%'}}>
                                             <div className="card__image" style={{ backgroundImage: `url()`}} />
                                             <div className="card__info">
-                                                <span>NFTs From {order.type}: </span>
+                                                <span>NFTs From Collection: </span>
                                                 <p>{order.data.collection && order.data.collection.name}</p>
+                                                <span>Order Type: {order.type}</span>
                                             </div>
                                         </div>
                                     </div>
