@@ -53,7 +53,7 @@ const FulfillCollectionOffer = () => {
     const fulfillOrder = async () => {
         const order = orders.find(x => x.id === selected);
         const nftsSubmit = nfts.filter(x => nftSelected.indexOf(x.id2) > -1);
-        if (wallets && wallets[0].accounts[0] && order) {
+        if (wallets && wallets[0].accounts[0] && order && order.type === 'trait') {
             const tokens = (order.data as any).tokenIds.map((x: string) => '0x' + BigNumber.from(x).toHexString().slice(2).padStart(64, "0"));
             const criteria = nftsSubmit.map(x => ({
                 identifier: x.id.tokenId,
@@ -65,6 +65,14 @@ const FulfillCollectionOffer = () => {
             //await deleteOrders()
             //setOrders([]);
             console.log(actions);
+        } else if (wallets && wallets[0].accounts[0] && order && order.type === 'collection') {
+            const criteria = nftsSubmit.map(x => ({
+                identifier: x.id.tokenId,
+                validIdentifiers: []
+            }));
+            const seaport = new Seaport( new ethers.providers.Web3Provider((window as any).ethereum) as any, {});
+            const actions = await seaport.fulfillOrder({ order: order.data.actions, unitsToFill: nftsSubmit.length, considerationCriteria: criteria });
+            await actions.executeAllActions();
         }
     };
 
@@ -134,10 +142,10 @@ const FulfillCollectionOffer = () => {
                                     if (!nft.metadata!.image! || !selectedOrder) {
                                         return;
                                     }
-                                    const nftsIds = (selectedOrder.data as any).tokenIds.map((x: string) => '0x' + BigNumber.from(x).toHexString().slice(2).padStart(64, "0"));
                                     const toCheck = selectedOrder.data.actions.parameters.consideration.map(x => ({ contract: x.token, tokenId: x.identifierOrCriteria }));
                                     let finder = toCheck.find(x => x.contract === nft.contract.address);
                                     if (selectedOrder.type == 'trait') {
+                                        const nftsIds = (selectedOrder.data as any).tokenIds.map((x: string) => '0x' + BigNumber.from(x).toHexString().slice(2).padStart(64, "0"));
                                         finder = nftsIds.indexOf(nft.id.tokenId) > -1 ? { contract: nft.contract.address, tokenId: nft.id.tokenId} : undefined
                                     }
                                     if (!finder) {
