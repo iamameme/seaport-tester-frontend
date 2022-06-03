@@ -28,6 +28,7 @@ export type OrdersResponse = {
     id: number;
     offerer: string;
     data: OrderData;
+    type: string;
 };
 
 const Create = () => {
@@ -88,7 +89,7 @@ const Create = () => {
     return (
         <div style={{ width: '100%', height: '100%', display: 'flex'}}>
             <div style={{ width: '45%', height: '100%' }}>
-                <div style={{ height: '70%', boxShadow: '0 0.1px 0.3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 20%)', background: '#fff'}}>
+                <div style={{ overflow: 'scroll', height: '70%', boxShadow: '0 0.1px 0.3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 20%)', background: '#fff'}}>
                     <div style={{ borderBottom: '1px solid grey'}}>
                         <Typography variant="h5" gutterBottom component="div" sx={{ p: 2, pb: 0 }}>
                             All Orders
@@ -113,7 +114,7 @@ const Create = () => {
                                                 <div className="card__body" style={{ width: '50%'}}>
                                                     <div className="card__image" style={{ backgroundImage: `url()`}} />
                                                     <div className="card__info">
-                                                        <span>NFTs From Collection: </span>
+                                                        <span>NFTs From {order.type}: </span>
                                                         <p>{order.data.collection && order.data.collection.name}</p>
                                                     </div>
                                                 </div>

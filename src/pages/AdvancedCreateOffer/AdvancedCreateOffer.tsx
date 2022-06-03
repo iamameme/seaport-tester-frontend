@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from "../../store";
 import { Autocomplete, Button, Checkbox, List, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, IconButton, Input, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField, Typography } from "@mui/material";
 import { Seaport } from "@bthn/seaport-js";
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import moment from 'moment';
 import { WalletState } from "@web3-onboard/core";
 import { postOffer, postOrder } from '../../utils/databaseApi';
@@ -19,55 +19,6 @@ import { getMerkleRoot } from "../../utils/ethUtils";
 const web3 = createAlchemyWeb3(
   "https://eth-rinkeby.alchemyapi.io/v2/demo",
 );
-
-const createBasicOrderTest = async (address: string, nfts: NftIds[], amount: number, wallet: WalletState) => {
-    //const provider = new ethers.providers.JsonRpcProvider((window as any).ethereum);
-    const seaport = new Seaport( new ethers.providers.Web3Provider((window as any).ethereum) as any, {});
-    console.log(address)
-    console.log((amount * 10**18).toString())
-    console.log([{
-        itemType: 2,
-        token: 'tokenId',
-        identifier: '0',
-        amount: '1',
-        endAmount: '1',
-    },{
-        itemType: 0,
-        identifier: '0',
-        token: "0x0000000000000000000000000000000000000000",
-        amount: (amount * 10**18).toString(),
-        endAmount: (amount * 10**18).toString(),
-        recipient: address
-    }],)
-    const consideration = nfts.map(x => ({
-        itemType: 2,
-        token: x.contract.address,
-        identifier: x.id.tokenId.toString(),
-        amount: '1',
-        endAmount: '1',
-        recipient: address
-    }));
-    const order = await seaport.createOrder({
-        //conduitKey: '0', // Default value is 0
-        endTime: moment().add(7, 'days').unix().toString(), // Recommended to send a end time, start time is current unix time
-        offer: [{
-            itemType: 0,
-            identifier: '0',
-            token: "0x0000000000000000000000000000000000000000",
-            amount: (amount * 10**18).toString(),
-            endAmount: (amount * 10**18).toString(),
-            //recipient: address
-        }],
-        consideration,
-    }, address);
-    console.log(order);
-    const executeActions = await order.executeAllActions();
-    await postOffer({actions: executeActions, nfts}, 'advancedoffer');
-    //console.log(apiResp);
-    console.log(executeActions);
-
-    //const fullfilled = await seaport.fulfillOrder(order);
-};
 
 const createCollectionOfferTest = async (address: string, amount: number, collection: CollectionData, noBuying: string) => {
     //const provider = new ethers.providers.JsonRpcProvider((window as any).ethereum);
@@ -95,7 +46,7 @@ const createCollectionOfferTest = async (address: string, amount: number, collec
     }, address);
     console.log(order);
     const executeActions = await order.executeAllActions();
-    await postOffer({actions: executeActions, collection }, 'advancedoffer');
+    await postOffer({actions: executeActions, collection }, 'collection');
     console.log(executeActions);
 };
 
@@ -103,6 +54,7 @@ const createTraitOfferTest = async (address: string, amount: number, collection:
     const seaport = new Seaport( new ethers.providers.Web3Provider((window as any).ethereum) as any, {});
     // ['1','2','3']
     const root = '0x' + getMerkleRoot(tokenIds);
+    const test = tokenIds.map(x => '0x' + BigNumber.from(x).toHexString().slice(2).padStart(64, "0"));
     const order = await seaport.createOrder({
         //conduitKey: '0', // Default value is 0
         endTime: moment().add(7, 'days').unix().toString(), // Recommended to send a end time, start time is current unix time
@@ -114,19 +66,21 @@ const createTraitOfferTest = async (address: string, amount: number, collection:
             endAmount: (amount * 10**18 * Number(noBuying)).toString(),
             //recipient: address
         }],
+        // Can lie and make it look like it works if i get rid of amount, end amount, allowPartialFills, and set to test[1]
+        // item is the in real life 
         consideration: [{
-            itemType: 4,
+            itemType: 2,
             token: collection.address,
-            identifier: root,
-            amount: noBuying,
-            endAmount: noBuying,
+            identifiers: [test[1]], // test 
+            //amount: noBuying,
+            //endAmount: noBuying,
             recipient: address
         }],
-        allowPartialFills: true,
+        //allowPartialFills: true,
     }, address);
     console.log(order);
     const executeActions = await order.executeAllActions();
-    await postOffer({actions: executeActions, collection }, 'advancedoffer');
+    await postOffer({actions: executeActions, collection, tokenIds }, 'trait');
     console.log(executeActions);
 };
 

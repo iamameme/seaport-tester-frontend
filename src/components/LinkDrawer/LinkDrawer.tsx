@@ -89,7 +89,7 @@ const LinkDrawer = () => {
                         <ListItemIcon>
                             <InboxIcon />
                         </ListItemIcon>
-                        <ListItemText primary={'Fulfill Collection Offer'} />
+                        <ListItemText primary={'Fulfill Collection/Trait Offer'} />
                     </ListItemButton>
                 </ListItem>
             </List>

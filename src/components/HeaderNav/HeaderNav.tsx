@@ -79,9 +79,11 @@ export default function HeaderNav() {
             >
                 <MenuIcon />
             </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                SEAPORT TEST SUITE
-            </Typography>
+            <div style={{marginLeft: 106, flexGrow: 1 }}>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} >
+                    SEAPORT TEST SUITE
+                </Typography>
+            </div>
             {/*<IconButton
                 size="large"
                 edge="start"

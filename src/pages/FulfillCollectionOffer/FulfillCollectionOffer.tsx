@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from "../../store";
 import { Button, Grid, Input, TextField, Typography } from "@mui/material";
 import { Seaport } from "@bthn/seaport-js";
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import moment from 'moment';
 import { WalletState } from "@web3-onboard/core";
 import { postOrder, getAllOrders, deleteOrders, getAllOrdersByType } from '../../utils/databaseApi';
@@ -29,9 +29,14 @@ const FulfillCollectionOffer = () => {
 
     useEffect(() => {
         async function fetchData(address: string) {
-            const resp = await getAllOrdersByType('advancedoffer');
-            if (resp) {
-                setOrders(resp);
+            const resp = await getAllOrdersByType('collection');
+            const resp3 = await getAllOrdersByType('trait');
+            if (resp && resp3) {
+                setOrders(resp.concat(resp3));
+            } else if (resp) {
+                setOrders(resp)
+            } else if (resp3) {
+                setOrders(resp3)
             }
             const resp2 = await web3.alchemy.getNfts({owner: address})
             if (resp2) {
@@ -56,7 +61,8 @@ const FulfillCollectionOffer = () => {
             const seaport = new Seaport( new ethers.providers.Web3Provider((window as any).ethereum) as any, {});
             const actions = await seaport.fulfillOrder({ order: order.data.actions, unitsToFill: nftsSubmit.length, considerationCriteria: criteria });
             await actions.executeAllActions();
-            setOrders([]);
+            //await deleteOrders()
+            //setOrders([]);
             console.log(actions);
         }
     };
@@ -79,7 +85,7 @@ const FulfillCollectionOffer = () => {
             <div style={{ height: '70%', overflow: 'scroll', boxShadow: '0 0.1px 0.3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 20%)', background: '#fff'}}>
                 <div style={{ borderBottom: '1px solid grey'}}>
                     <Typography variant="h5" gutterBottom component="div" sx={{ p: 2, pb: 0 }}>
-                        All Collection Level Offers
+                        All Criteria Level Offers
                     </Typography>
                 </div>
                     {orders && orders.map(order => {
@@ -100,7 +106,7 @@ const FulfillCollectionOffer = () => {
                                         <div className="card__body" style={{ width: '50%'}}>
                                             <div className="card__image" style={{ backgroundImage: `url()`}} />
                                             <div className="card__info">
-                                                <span>NFTs From Collection: </span>
+                                                <span>NFTs From {order.type}: </span>
                                                 <p>{order.data.collection && order.data.collection.name}</p>
                                             </div>
                                         </div>
@@ -126,8 +132,12 @@ const FulfillCollectionOffer = () => {
                                     if (!nft.metadata!.image! || !selectedOrder) {
                                         return;
                                     }
+                                    const nftsIds = (selectedOrder.data as any).tokenIds.map((x: string) => '0x' + BigNumber.from(x).toHexString().slice(2).padStart(64, "0"));
                                     const toCheck = selectedOrder.data.actions.parameters.consideration.map(x => ({ contract: x.token, tokenId: x.identifierOrCriteria }));
-                                    const finder = toCheck.find(x => x.contract === nft.contract.address);
+                                    let finder = toCheck.find(x => x.contract === nft.contract.address);
+                                    if (selectedOrder.type == 'trait') {
+                                        finder = nftsIds.indexOf(nft.id.tokenId) > -1 ? { contract: nft.contract.address, tokenId: nft.id.tokenId} : undefined
+                                    }
                                     if (!finder) {
                                         return;
                                     }
