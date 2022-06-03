@@ -19,7 +19,7 @@ export const MAINNET_RPC_URL = `https://mainnet.infura.io/v3/${INFURA_ID}`;
 const onboar = Onboard({
     appMetadata: {
       name: 'My App',
-      icon: 'lazy.png',
+      icon: 'seaport.png',
       description: 'My app using Onboard'
     },
     chains: [
@@ -92,7 +92,8 @@ export default function HeaderNav() {
                 <MenuIcon />
             </IconButton>*/}
             <Button 
-                variant="outlined"
+                variant="contained"
+                color="secondary"
                 onClick={() => initOnboard()}
             >
                 Connect Wallet

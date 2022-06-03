@@ -22,6 +22,7 @@ import Offers from './pages/Offers/Offers';
 import FulfillOffer from './pages/FulfillOffer/FulfillOffer';
 import AdvancedCreateOffers from './pages/AdvancedCreateOffer/AdvancedCreateOffer';
 import FulfillCollectionOffer from './pages/FulfillCollectionOffer/FulfillCollectionOffer';
+import Home from './pages/Home/Home';
 
 /*eslint no-unused-expressions: "off"*/
 const theme = createTheme({
@@ -40,7 +41,7 @@ class App extends React.Component {
             <HeaderNav />
               <Routes>
                 <Route path="/create" element={<Create />} />
-                <Route path="/" element={<NFTTrader />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/manage-orders" element={<ManageOrders />} />
                 <Route path="/create-offer" element={<Offers />} />
                 <Route path="/fulfill" element={<Fulfill />} />
